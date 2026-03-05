@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.awt.Font;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 public class Game {
 
@@ -18,9 +20,16 @@ public class Game {
 	private boolean gameOver = false;
 	private String gameOverMessage = "";
 
-	public Game(GameBoard board) {
+	// References to the ADT lists so Game can update them when a round ends
+	private HighScoreList highScoreList;
+	private LatestRunsQueue latestRunsQueue;
+
+	public Game(GameBoard board, HighScoreList highScoreList, LatestRunsQueue latestRunsQueue) {
+		this.highScoreList = highScoreList;
+		this.latestRunsQueue = latestRunsQueue;
+
 		gameStates = new GameStates();
-		boxes = Spawner.createMultipleRows(1, 8);
+		boxes = Spawner.createMultipleRows(2, 8);
 		bat = new Bat(350, 550, 100, 20, Color.WHITE);
 		bolls.add(new Balls(400, 300, 20, 20));
 	}
@@ -71,7 +80,6 @@ public class Game {
 			}
 		}
 
-
 		bat.update(keyboard);
 
 		if (bat.canShootMissile(keyboard)) {
@@ -81,19 +89,17 @@ public class Game {
 			}
 		}
 
-
-		if (bolls.isEmpty() && !gameOver){
+		if (bolls.isEmpty() && !gameOver) {
 			endGame("Game Over!");
-
 		}
 
-		if (boxes.isEmpty() && !gameOver){
+		if (boxes.isEmpty() && !gameOver) {
 			endGame("You Won!");
 			bolls.clear();
 		}
-		if (gameOver && keyboard.isKeyDown(Key.Escape)){
-			System.exit(0);
 
+		if (gameOver && keyboard.isKeyDown(Key.Escape)) {
+			System.exit(0);
 		}
 	}
 
@@ -102,8 +108,43 @@ public class Game {
 		gameOverMessage = message;
 
 		if (!scoreSaved) {
-			SaveFileScore.saveScore(gameStates.getScore());
 			scoreSaved = true;
+			int finalScore = gameStates.getScore();
+
+			// Always add to latest runs queue
+			latestRunsQueue.enqueue(finalScore);
+
+			// Also save to the legacy ScoreLog.txt
+			SaveFileScore.saveScore(finalScore);
+
+			// Check if score qualifies for highscore, then prompt for initials
+			// Use SwingUtilities.invokeLater so we don't block the game loop thread
+			if (highScoreList.qualifies(finalScore)) {
+				SwingUtilities.invokeLater(() -> promptForInitials(finalScore));
+			}
+		}
+	}
+
+	/**
+	 * Prompts the player to enter up to 3 initials via a dialog.
+	 * Called on the EDT after the game ends.
+	 *
+	 * @param score the score to register
+	 */
+	private void promptForInitials(int score) {
+		String input = JOptionPane.showInputDialog(
+				null,
+				"New highscore: " + score + "\nEnter your initials (max 3 characters):",
+				"HIGHSCORE!",
+				JOptionPane.PLAIN_MESSAGE
+		);
+
+		if (input != null) {
+			// Trim and limit to 3 chars; fall back to "???" if blank
+			input = input.trim();
+			if (input.isEmpty()) input = "???";
+			if (input.length() > 3) input = input.substring(0, 3);
+			highScoreList.add(score, input);
 		}
 	}
 
@@ -145,9 +186,7 @@ public class Game {
 			int scoreWidth = graphics.getFontMetrics().stringWidth(scoreText);
 			int scoreX = (Constants.WINDOW_WIDTH - scoreWidth) / 2;
 			graphics.drawString(scoreText, scoreX, 320);
-			graphics.drawString(exitText, scoreX - 50 , 370);
-
-
+			graphics.drawString(exitText, scoreX - 50, 370);
 		}
 	}
 }

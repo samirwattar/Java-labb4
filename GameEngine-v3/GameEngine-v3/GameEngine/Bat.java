@@ -5,7 +5,7 @@ import java.awt.*;
 public class Bat extends Sprite{
     private Color color;
     private int speed = 10;
-    private int missileCount = 1;
+    private int missileCount = 111;
 
     public Bat(int x, int y, int width, int height, Color color) {
         super(x, y, width, height);

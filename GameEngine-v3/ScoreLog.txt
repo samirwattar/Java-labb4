@@ -8,3 +8,10 @@ Score: 1040
 Score: 350
 Score: 90
 Score: 300
+Score: 180
+Score: 190
+Score: 180
+Score: 160
+Score: 170
+Score: 170
+Score: 380

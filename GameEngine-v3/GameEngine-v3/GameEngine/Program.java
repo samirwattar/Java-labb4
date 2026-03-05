@@ -7,15 +7,25 @@ import javax.swing.*;
 
 public class Program extends JFrame {
 	GameBoard board;
-	ScorePanel scorePanel;
+	HighScorePanel highScorePanel;
+	LatestRunsPanel latestRunsPanel;
 
 	public Program() {
-		board = new GameBoard();
-		scorePanel = new ScorePanel();
+		// Create the shared ADT instances
+		HighScoreList highScoreList = new HighScoreList();
+		LatestRunsQueue latestRunsQueue = new LatestRunsQueue();
+
+		// Create panels backed by the ADTs
+		highScorePanel = new HighScorePanel(highScoreList);
+		latestRunsPanel = new LatestRunsPanel(latestRunsQueue);
+
+		// GameBoard receives the ADTs so Game can update them
+		board = new GameBoard(highScoreList, latestRunsQueue);
 
 		setLayout(new BorderLayout());
+		add(highScorePanel, BorderLayout.WEST);   // Highscore on the LEFT
 		add(board, BorderLayout.CENTER);
-		add(scorePanel, BorderLayout.EAST);
+		add(latestRunsPanel, BorderLayout.EAST);  // Latest runs on the RIGHT
 
 		setResizable(false);
 		pack();
