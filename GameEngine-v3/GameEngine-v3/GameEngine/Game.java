@@ -20,7 +20,6 @@ public class Game {
 	private boolean gameOver = false;
 	private String gameOverMessage = "";
 
-	// References to the ADT lists so Game can update them when a round ends
 	private HighScoreList highScoreList;
 	private LatestRunsQueue latestRunsQueue;
 
@@ -124,13 +123,12 @@ public class Game {
 	private void promptForInitials(int score) {
 		String input = JOptionPane.showInputDialog(
 				null,
-				"New highscore: " + score + "\nEnter your initials (max 3 characters):",
+				"New highscore: " + score + "\nEnter your Name:",
 				"HIGHSCORE!",
 				JOptionPane.PLAIN_MESSAGE
 		);
 
 		if (input != null) {
-			// Trim and limit to 3 chars; fall back to "???" if blank
 			input = input.trim();
 			if (input.isEmpty()) input = "???";
 			if (input.length() > 3) input = input.substring(0, 3);

@@ -3,41 +3,37 @@ package GameEngine;
 import javax.swing.DefaultListModel;
 
 public class HighScoreList {
-    private static int MAX_ENTRIES = 10;
+    private static int MAX_SIZE = 10;
     private static String FILENAME = "highscores.txt";
 
-    // The underlying model used by JList for display
     private DefaultListModel<String> listModel;
 
-    // Parallel arrays to store scores and initials
     private int[] scores;
-    private String[] initials;
+    private String[] names;
     private int size;
 
     public HighScoreList() {
         listModel = new DefaultListModel<>();
-        scores = new int[MAX_ENTRIES];
-        initials = new String[MAX_ENTRIES];
+        scores = new int[MAX_SIZE];
+        names = new String[MAX_SIZE];
         size = 0;
         loadFromFile();
     }
 
     public boolean qualifies(int score) {
-        if (size < MAX_ENTRIES) return true;
-        return score > scores[size - 1]; // scores[size-1] is the lowest (list is sorted desc)
+        if (size < MAX_SIZE) return true;
+        return score > scores[size - 1];
     }
 
-    public void add(int score, String initial) {
+    public void add(int score, String name) {
         if (!qualifies(score)) return;
-
-        // Clamp initials to 3 characters
-        if (initial.length() > 3) {
-            initial = initial.substring(0, 3).toUpperCase();
+        // om namnet är större än 3 bokstäver så trima den till bara 3 bokstävder o ändra till uppercase
+        if (name.length() > 3) {
+            name = name.substring(0, 3).toUpperCase();
         } else {
-            initial = initial.toUpperCase();
+            name = name.toUpperCase();
         }
 
-        // Find insertion index (sorted descending)
         int insertAt = size;
         for (int i = 0; i < size; i++) {
             if (score > scores[i]) {
@@ -47,31 +43,28 @@ public class HighScoreList {
         }
 
         // If list is full, we'll overwrite the last slot after shifting
-        int end = (size < MAX_ENTRIES) ? size : MAX_ENTRIES - 1;
+        int end = (size < MAX_SIZE) ? size : MAX_SIZE - 1;
 
         // Shift elements down to make room
         for (int i = end - 1; i >= insertAt; i--) {
             scores[i + 1] = scores[i];
-            initials[i + 1] = initials[i];
+            names[i + 1] = names[i];
         }
 
         scores[insertAt] = score;
-        initials[insertAt] = initial;
+        names[insertAt] = name;
 
-        if (size < MAX_ENTRIES) size++;
+        if (size < MAX_SIZE) size++;
 
         refreshModel();
         saveToFile();
     }
 
-    /**
-     * Rebuilds the DefaultListModel from the current scores/initials arrays.
-     * Format: "1. INI 12345"
-     */
+
     private void refreshModel() {
         listModel.clear();
         for (int i = 0; i < size; i++) {
-            listModel.addElement((i + 1) + ". " + initials[i] + " " + scores[i]);
+            listModel.addElement((i + 1) + ". " + names[i] + " " + scores[i]);
         }
     }
 
@@ -79,18 +72,11 @@ public class HighScoreList {
         return listModel;
     }
 
-    // -------------------------------------------------------------------------
-    // File persistence
-    // -------------------------------------------------------------------------
 
-    /**
-     * Saves the highscore list to file.
-     * Format per line: INITIAL SCORE
-     */
     private void saveToFile() {
         try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(FILENAME))) {
             for (int i = 0; i < size; i++) {
-                bw.write(initials[i] + " " + scores[i]);
+                bw.write(names[i] + " " + scores[i]);
                 bw.newLine();
             }
         } catch (java.io.IOException e) {
@@ -98,10 +84,7 @@ public class HighScoreList {
         }
     }
 
-    /**
-     * Loads the highscore list from file.
-     * Silently ignores missing or malformed files.
-     */
+
     private void loadFromFile() {
         java.io.File file = new java.io.File(FILENAME);
         if (!file.exists()) return;
@@ -109,10 +92,10 @@ public class HighScoreList {
         try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(file))) {
             String line;
             size = 0;
-            while ((line = br.readLine()) != null && size < MAX_ENTRIES) {
+            while ((line = br.readLine()) != null && size < MAX_SIZE) {
                 String[] parts = line.trim().split(" ");
                 if (parts.length == 2) {
-                    initials[size] = parts[0];
+                    names[size] = parts[0];
                     scores[size] = Integer.parseInt(parts[1]);
                     size++;
                 }
