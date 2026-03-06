@@ -19,13 +19,14 @@ public class Program extends JFrame {
 		highScorePanel = new HighScorePanel(highScoreList);
 		latestRunsPanel = new LatestRunsPanel(latestRunsQueue);
 
+
 		// GameBoard receives the ADTs so Game can update them
 		board = new GameBoard(highScoreList, latestRunsQueue);
 
 		setLayout(new BorderLayout());
-		add(highScorePanel, BorderLayout.WEST);   // Highscore on the LEFT
+		add(highScorePanel, BorderLayout.WEST);   // Highscore till vänster
 		add(board, BorderLayout.CENTER);
-		add(latestRunsPanel, BorderLayout.EAST);  // Latest runs on the RIGHT
+		add(latestRunsPanel, BorderLayout.EAST);  // Latest runs till höger
 
 		setResizable(false);
 		pack();

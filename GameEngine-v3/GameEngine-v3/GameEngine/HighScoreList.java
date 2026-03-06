@@ -2,14 +2,9 @@ package GameEngine;
 
 import javax.swing.DefaultListModel;
 
-/**
- * ADT: Sorted list for highscores.
- * Stores up to MAX_ENTRIES score-initial pairs, sorted descending by score.
- * Acts as a sorted list - entries are always maintained in sorted order.
- */
 public class HighScoreList {
-    private static final int MAX_ENTRIES = 10;
-    private static final String FILENAME = "highscores.txt";
+    private static int MAX_ENTRIES = 10;
+    private static String FILENAME = "highscores.txt";
 
     // The underlying model used by JList for display
     private DefaultListModel<String> listModel;
@@ -27,24 +22,11 @@ public class HighScoreList {
         loadFromFile();
     }
 
-    /**
-     * Returns true if the given score qualifies for the highscore list.
-     * A score qualifies if the list has fewer than MAX_ENTRIES entries,
-     * or if the score is higher than the lowest entry.
-     */
     public boolean qualifies(int score) {
         if (size < MAX_ENTRIES) return true;
         return score > scores[size - 1]; // scores[size-1] is the lowest (list is sorted desc)
     }
 
-    /**
-     * Adds a score-initial pair to the sorted list.
-     * If the list is full, the lowest entry is removed.
-     * Maintains descending sort order.
-     *
-     * @param score    the player's score
-     * @param initial  the player's initials (max 3 chars)
-     */
     public void add(int score, String initial) {
         if (!qualifies(score)) return;
 

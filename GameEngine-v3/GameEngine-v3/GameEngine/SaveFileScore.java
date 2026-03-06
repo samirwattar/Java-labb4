@@ -11,7 +11,7 @@ public class SaveFileScore {
 
     public static void saveScore(int score) {
         try {
-            FileWriter fileWriter = new FileWriter(FILENAME, true);
+            FileWriter fileWriter = new FileWriter(FILENAME);
             BufferedWriter writer = new BufferedWriter(fileWriter);
 
             writer.write("Score: " + score);

@@ -114,23 +114,13 @@ public class Game {
 			// Always add to latest runs queue
 			latestRunsQueue.enqueue(finalScore);
 
-			// Also save to the legacy ScoreLog.txt
-			SaveFileScore.saveScore(finalScore);
-
 			// Check if score qualifies for highscore, then prompt for initials
-			// Use SwingUtilities.invokeLater so we don't block the game loop thread
 			if (highScoreList.qualifies(finalScore)) {
-				SwingUtilities.invokeLater(() -> promptForInitials(finalScore));
+				promptForInitials(finalScore);
 			}
 		}
 	}
 
-	/**
-	 * Prompts the player to enter up to 3 initials via a dialog.
-	 * Called on the EDT after the game ends.
-	 *
-	 * @param score the score to register
-	 */
 	private void promptForInitials(int score) {
 		String input = JOptionPane.showInputDialog(
 				null,
